@@ -40,7 +40,10 @@ namespace sb
       auto shape_range = tensor.shape();
       std::vector<size_t> shape(std::begin(shape_range), std::end(shape_range));
 
-      if (shape.empty() || std::any_of(shape.begin(), shape.end(), [](size_t n){ return n == 0; }))
+      // A rank-0 (shape.empty()) tensor still holds exactly one element and must
+      // be visited once; only a genuinely empty extent (some dim == 0) has zero
+      // elements and is skipped.
+      if (std::any_of(shape.begin(), shape.end(), [](size_t n){ return n == 0; }))
       {
         return;
       }
@@ -64,6 +67,12 @@ namespace sb
         }
 
         ++flat;
+
+        // Rank-0 has a single element; the carry loop below assumes ndim >= 1.
+        if (ndim == 0)
+        {
+          return;
+        }
 
         for (ptrdiff_t i = ndim - 1; i >= 0; --i)
         {
@@ -95,7 +104,9 @@ namespace sb
       auto shape_range = tensor.shape();
       std::vector<size_t> shape(std::begin(shape_range), std::end(shape_range));
 
-      if (shape.empty() || std::any_of(shape.begin(), shape.end(), [](size_t n){ return n == 0; }))
+      // A rank-0 tensor has exactly one element (total == 1 below) and is walked
+      // once; only a zero-size extent (some dim == 0) is skipped.
+      if (std::any_of(shape.begin(), shape.end(), [](size_t n){ return n == 0; }))
       {
         tf::Taskflow flow;
         return exec.cpu()->run(std::move(flow));
