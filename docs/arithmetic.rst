@@ -142,6 +142,16 @@ virtually repeated without copying data::
    view = X.broadcast_to((4, 3))                         # shape (4, 3)
    # Every row of view is [1, 2, 3]; view shares data with X
 
+The result is **read-only**, exactly like :func:`numpy.broadcast_to`. The
+expanded axes have stride 0, so several positions alias the same element;
+writing through the view (item assignment or in-place arithmetic such as
+``view += 1``) would corrupt the shared source and therefore raises
+``ValueError``. Call :py:meth:`~stablebear._tensor_base.Tensor.copy` first if
+you need a writeable tensor::
+
+   writeable = X.broadcast_to((4, 3)).copy()
+   writeable[0, 0] = 99.0   # OK — independent storage
+
 
 Comparisons
 ===========
