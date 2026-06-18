@@ -70,13 +70,6 @@ namespace sb
 
       if (buf.shape.size() == 2 && buf.shape[1] == 2)
       {
-        if (data(0, 0) != 0)
-        {
-          throw std::invalid_argument(
-            "The first breakpoint must have time t=0 (got t="
-            + std::to_string(static_cast<double>(data(0, 0))) + ").");
-        }
-
         points.resize(buf.shape[0]);
         for (auto i = 0; i < buf.shape[0]; ++i)
         {
@@ -96,6 +89,16 @@ namespace sb
       if (!std::is_sorted(points.begin(), points.end(), sortByTime))
       {
         std::sort(points.begin(), points.end(), sortByTime);
+      }
+
+      // Validate the t=0 invariant AFTER sorting: PCFs are defined on [0, inf),
+      // so the smallest breakpoint time must be 0. Checking the unsorted input
+      // row 0 missed a negative time that std::sort then moves to the front.
+      if (points.front().t != static_cast<Tt>(0))
+      {
+        throw std::invalid_argument(
+          "The first breakpoint must have time t=0 (got t="
+          + std::to_string(static_cast<double>(points.front().t)) + ").");
       }
 
       return sb::Pcf<Tt, Tv>(std::move(points));

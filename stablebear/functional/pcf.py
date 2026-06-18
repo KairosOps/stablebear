@@ -29,8 +29,10 @@ class Pcf:
     takes the value :math:`v_i` on the interval :math:`[t_i, t_{i+1})` for
     :math:`0 \leq i < n-1`, and :math:`v_{n-1}` on :math:`[t_{n-1}, \infty)`.
 
-    The first breakpoint must have :math:`t_0 = 0`. An ``InvalidArgument``
-    error is raised if the first time coordinate is not zero.
+    The breakpoints need not be given in time order; they are sorted on
+    construction. The smallest time must be :math:`t_0 = 0` (PCFs are defined
+    on :math:`[0, \infty)`): a ``ValueError`` is raised if the minimum time is
+    not zero — in particular if any time is negative.
 
     Parameters
     ----------
