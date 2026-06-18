@@ -14,6 +14,8 @@
 
 from __future__ import annotations
 
+import operator
+
 import numpy as np
 
 from . import _sb_cpp as cpp
@@ -95,9 +97,10 @@ class NumericTensor(Tensor, ArithmeticTensorMixin):
         return arr
 
     def __eq__(self, other):
-        if isinstance(other, np.ndarray):
-            other = type(self)(other)
-        return super().__eq__(other)
+        return self._compare(other, operator.eq, "==")
+
+    def __ne__(self, other):
+        return self._compare(other, operator.ne, "!=")
 
     def array_equal(self, other) -> bool:
         if isinstance(other, np.ndarray):
